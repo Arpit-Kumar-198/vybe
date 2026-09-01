@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
+import userRoute from "./routes/user.route.js";
 dotenv.config();
 
 const app = express();
@@ -17,18 +18,12 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// APIs
+app.use("/api/v1/user", userRoute);
+
 const PORT = process.env.PORT;
 
+connectDB();
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-connectDB();
-
-// Test api
-app.get("/", (req, res) => {
-    res.status(200).json({
-        message: "Test api working",
-        success: true
-    })
-})
