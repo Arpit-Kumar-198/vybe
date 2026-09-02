@@ -67,7 +67,7 @@ export const login = async (req, res) => {
     // Find user by email OR username
     let user = await User.findOne({
       $or: [{ username }, { email }],
-    }); 
+    });
     // User not found
     if (!user) {
       return res.status(401).json({
@@ -155,6 +155,7 @@ export const getProfile = async (req, res) => {
   try {
     const userId = req.params.id;
     let user = await User.findById(userId)
+      .select("-password")
       .populate({
         path: "posts",
         options: {
