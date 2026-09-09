@@ -1,13 +1,14 @@
 import express from "express";
 
 import {
-  editProfile,
-  followOrUnfollow,
-  getProfile,
-  getSuggestedUsers,
+  register,
   login,
   logout,
-  register,
+  getCurrentUser,
+  getProfile,
+  editProfile,
+  getSuggestedUsers,
+  followOrUnfollow,
 } from "../controllers/user.controller.js";
 
 import isAuthenticated from "../middlewares/isAuthenticated.js";
@@ -23,6 +24,9 @@ router.post("/login", login);
 
 // Logout
 router.get("/logout", logout);
+
+// Get me
+router.get("/me", isAuthenticated, getCurrentUser);
 
 // Get user profile
 router.get("/:id/profile", isAuthenticated, getProfile);

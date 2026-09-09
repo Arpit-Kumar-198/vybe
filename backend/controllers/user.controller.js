@@ -359,3 +359,38 @@ export const followOrUnfollow = async (req, res) => {
     });
   }
 };
+
+// ==================== GET CURRENT USER ====================
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.id)
+      .select("-password")
+      .populate({
+        path: "posts",
+        options: {
+          sort: { createdAt: -1 },
+        },
+      })
+      .populate("bookmarks");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      user,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Get current user error:", error.message);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};

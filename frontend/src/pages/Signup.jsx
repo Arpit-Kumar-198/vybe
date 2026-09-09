@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import Logo from "../components/Logo";
+import { useDispatch } from "react-redux";
+import { setAuthUser } from "../redux/authSlice";
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -17,6 +19,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const changeEventHandler = (e) => {
     const { name, value } = e.target;
@@ -55,6 +58,8 @@ const Signup = () => {
       );
 
       if (res.data.success) {
+        dispatch(setAuthUser(res.data.user));
+
         setInput({
           username: "",
           email: "",
