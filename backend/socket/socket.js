@@ -1,36 +1,51 @@
-import { Server } from "socket.io";
-import express from "express";
 import http from "http";
+import { Server } from "socket.io";
 
-const app = express();
+let io;
+let server;
 
-const server = http.createServer(app);
+const userSocketMap = {};
 
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"],
-  },
-});
+// Get a user's socket ID
+export const getReceiverSocketId = (receiverId) => {
+  return userSocketMap[receiverId];
+};
 
-const userSocketMap = {}; // this map stores socket id corresponding the user id; userId -> socketId
+// Initialize Socket.IO
+export const initializeSocket = (app) => {
+  server = http.createServer(app);
 
-export const getReceiverSocketId = (receiverId) => userSocketMap[receiverId];
-
-io.on("connection", (socket) => {
-  const userId = socket.handshake.query.userId;
-  if (userId) {
-    userSocketMap[userId] = socket.id;
-  }
-
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
-  socket.on("disconnect", () => {
-    if (userId) {
-      delete userSocketMap[userId];
-    }
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  io = new Server(server, {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
   });
-});
 
-export { app, server, io };
+  io.on("connection", (socket) => {
+    const userId = socket.handshake.query.userId;
+
+    // Store user's socket ID
+    if (userId) {
+      userSocketMap[userId] = socket.id;
+    }
+
+    // Send current online users to everyone
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+    // User disconnected
+    socket.on("disconnect", () => {
+      if (userId) {
+        delete userSocketMap[userId];
+      }
+
+      // Send updated online users
+      io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    });
+  });
+
+  return { server, io };
+};
+
+export { io, server };
