@@ -7,7 +7,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setAuthUser, setCheckingAuth } from "./redux/authSlice";
+import { setAuthUser, setCheckingAuth, logout } from "./redux/authSlice";
+import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 
 const browserRouter = createBrowserRouter([
   {
@@ -19,6 +21,7 @@ const browserRouter = createBrowserRouter([
     element: <Signup />,
   },
   {
+    // The routes inside children must pass through ProtectedRoute first.
     element: <ProtectedRoute />,
     children: [
       {
@@ -28,6 +31,14 @@ const browserRouter = createBrowserRouter([
           {
             index: true,
             element: <Home />,
+          },
+          {
+            path: "profile/:id",
+            element: <Profile />,
+          },
+          {
+            path: "account/edit",
+            element: <EditProfile />,
           },
         ],
       },
@@ -49,6 +60,7 @@ function App() {
           dispatch(setAuthUser(res.data.user));
         }
       } catch (error) {
+        dispatch(logout());
         console.log("User is not logged in");
       } finally {
         dispatch(setCheckingAuth(false));
@@ -56,6 +68,16 @@ function App() {
     };
 
     getCurrentUser();
+
+    const handlePageShow = () => {
+      getCurrentUser();
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
   }, [dispatch]);
 
   return <RouterProvider router={browserRouter} />;

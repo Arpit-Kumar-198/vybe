@@ -2,9 +2,10 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { useSelector } from "react-redux";
 
 const SuggestedUsers = () => {
-  const suggestedUsers = null;
+  const suggestedUsers = useSelector((state) => state.auth.selectedUser);
 
   const followHandler = async (userId) => {
     try {

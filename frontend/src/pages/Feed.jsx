@@ -1,7 +1,12 @@
+import React from "react";
+import Posts from "./Posts";
+
 const Feed = () => {
   return (
-    <div className="flex w-full flex-1 justify-center px-4 py-6 sm:px-6 md:py-8">
-      All Posts
+    <div className="my-8 flex w-full justify-center">
+      <div className="w-full max-w-2xl">
+        <Posts />
+      </div>
     </div>
   );
 };

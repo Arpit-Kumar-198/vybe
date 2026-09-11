@@ -19,7 +19,6 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const changeEventHandler = (e) => {
     const { name, value } = e.target;
@@ -58,8 +57,6 @@ const Signup = () => {
       );
 
       if (res.data.success) {
-        dispatch(setAuthUser(res.data.user));
-
         setInput({
           username: "",
           email: "",
