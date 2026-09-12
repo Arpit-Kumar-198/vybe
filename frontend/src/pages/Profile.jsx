@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { AtSign, Heart, MessageCircle, Share2 } from "lucide-react";
+import { AtSign, Heart, MessageCircle, X } from "lucide-react";
+
+import {
+  FaInstagram,
+  FaFacebookF,
+  FaWhatsapp,
+  FaTwitter,
+} from "react-icons/fa";
 
 import useGetUserProfile from "@/hooks/useGetUserProfile.js";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -14,6 +20,7 @@ const Profile = () => {
   const { id: userId } = useParams();
 
   const [activeTab, setActiveTab] = useState("posts");
+  const [showShareOptions, setShowShareOptions] = useState(false);
 
   const { user, userProfile } = useSelector((store) => store.auth);
 
@@ -28,6 +35,55 @@ const Profile = () => {
     activeTab === "posts"
       ? userProfile?.posts || []
       : userProfile?.bookmarks || [];
+
+  // Share profile
+  const handleShare = (platform) => {
+    const profileUrl = window.location.href;
+    const username = userProfile?.username || "Profile";
+    const shareText = `Check out @${username}'s profile on Vybe`;
+
+    if (platform === "instagram") {
+      navigator.clipboard
+        .writeText(profileUrl)
+        .then(() => {
+          window.open("https://www.instagram.com/", "_blank");
+        })
+        .catch(() => {
+          window.open("https://www.instagram.com/", "_blank");
+        });
+    }
+
+    if (platform === "facebook") {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          profileUrl,
+        )}`,
+        "_blank",
+        "width=600,height=500",
+      );
+    }
+
+    if (platform === "whatsapp") {
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(
+          `${shareText} ${profileUrl}`,
+        )}`,
+        "_blank",
+      );
+    }
+
+    if (platform === "twitter") {
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          shareText,
+        )}&url=${encodeURIComponent(profileUrl)}`,
+        "_blank",
+        "width=600,height=500",
+      );
+    }
+
+    setShowShareOptions(false);
+  };
 
   return (
     <div className="w-full min-w-0 overflow-x-hidden">
@@ -62,7 +118,7 @@ const Profile = () => {
               {/* BUTTONS */}
               {isLoggedInUserProfile ? (
                 <div className="flex gap-2">
-                  <Link to="/account/edit" className="min-w-0 flex-1">
+                  <Link to="/profile/edit" className="min-w-0 flex-1">
                     <Button
                       type="button"
                       variant="secondary"
@@ -76,6 +132,7 @@ const Profile = () => {
                     type="button"
                     variant="secondary"
                     className="h-9 min-w-0 flex-1 px-2 text-xs sm:text-sm"
+                    onClick={() => setShowShareOptions(true)}
                   >
                     Share
                   </Button>
@@ -87,7 +144,7 @@ const Profile = () => {
                     variant="secondary"
                     className="h-9 flex-1 px-2 text-xs"
                   >
-                    Unfollow
+                    Following
                   </Button>
 
                   <Button
@@ -97,14 +154,34 @@ const Profile = () => {
                   >
                     Message
                   </Button>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="h-9 flex-1 px-2 text-xs"
+                    onClick={() => setShowShareOptions(true)}
+                  >
+                    Share
+                  </Button>
                 </div>
               ) : (
-                <Button
-                  type="button"
-                  className="h-9 w-full bg-[#0095F6] text-sm hover:bg-[#3192d2]"
-                >
-                  Follow
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    className="h-9 flex-1 bg-[#0095F6] px-2 text-xs hover:bg-[#3192d2]"
+                  >
+                    Follow
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="h-9 flex-1 px-2 text-xs"
+                    onClick={() => setShowShareOptions(true)}
+                  >
+                    Share
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -126,6 +203,7 @@ const Profile = () => {
               <span className="font-semibold">
                 {userProfile?.posts?.length || 0}
               </span>
+
               <span className="text-xs text-gray-500">posts</span>
             </div>
 
@@ -133,6 +211,7 @@ const Profile = () => {
               <span className="font-semibold">
                 {userProfile?.followers?.length || 0}
               </span>
+
               <span className="text-xs text-gray-500">followers</span>
             </div>
 
@@ -140,6 +219,7 @@ const Profile = () => {
               <span className="font-semibold">
                 {userProfile?.following?.length || 0}
               </span>
+
               <span className="text-xs text-gray-500">following</span>
             </div>
           </div>
@@ -175,7 +255,7 @@ const Profile = () => {
 
                   {isLoggedInUserProfile ? (
                     <div className="flex flex-wrap gap-2">
-                      <Link to="/account/edit">
+                      <Link to="/profile/edit">
                         <Button
                           type="button"
                           variant="secondary"
@@ -189,6 +269,7 @@ const Profile = () => {
                         type="button"
                         variant="secondary"
                         className="h-9 px-4 text-sm"
+                        onClick={() => setShowShareOptions(true)}
                       >
                         Share
                       </Button>
@@ -200,7 +281,7 @@ const Profile = () => {
                         variant="secondary"
                         className="h-9 px-4 text-sm"
                       >
-                        Unfollow
+                        Following
                       </Button>
 
                       <Button
@@ -210,14 +291,34 @@ const Profile = () => {
                       >
                         Message
                       </Button>
+
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="h-9 px-4 text-sm"
+                        onClick={() => setShowShareOptions(true)}
+                      >
+                        Share
+                      </Button>
                     </div>
                   ) : (
-                    <Button
-                      type="button"
-                      className="h-9 w-fit bg-[#0095F6] px-5 hover:bg-[#3192d2]"
-                    >
-                      Follow
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        className="h-9 bg-[#0095F6] px-5 hover:bg-[#3192d2]"
+                      >
+                        Follow
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="h-9 px-5 text-sm"
+                        onClick={() => setShowShareOptions(true)}
+                      >
+                        Share
+                      </Button>
+                    </div>
                   )}
                 </div>
 
@@ -294,37 +395,9 @@ const Profile = () => {
             >
               SAVED
             </button>
-
-            {/* REELS */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("reels")}
-              className={`border-t-2 py-3 ${
-                activeTab === "reels"
-                  ? "border-black font-bold"
-                  : "border-transparent text-gray-500"
-              }`}
-            >
-              REELS
-            </button>
-
-            {/* TAGS */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("tags")}
-              className={`border-t-2 py-3 ${
-                activeTab === "tags"
-                  ? "border-black font-bold"
-                  : "border-transparent text-gray-500"
-              }`}
-            >
-              TAGS
-            </button>
           </div>
 
-          {/* =====================================================
-              POST GRID
-              ===================================================== */}
+          {/* POST GRID */}
           {displayedPosts.length > 0 ? (
             <div className="grid grid-cols-3 gap-0.5 sm:gap-1">
               {displayedPosts.map((post) => (
@@ -362,6 +435,93 @@ const Profile = () => {
           )}
         </section>
       </div>
+
+      {/* =====================================================
+          PROFESSIONAL SHARE MODAL
+          ===================================================== */}
+      {showShareOptions && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-[2px]"
+          onClick={() => setShowShareOptions(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* MODAL HEADER */}
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <h2 className="text-base font-semibold sm:text-lg">
+                Share profile
+              </h2>
+
+              <button
+                type="button"
+                onClick={() => setShowShareOptions(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-black"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* SHARE OPTIONS */}
+            <div className="grid grid-cols-4 gap-3 px-5 py-6 sm:gap-5">
+              {/* INSTAGRAM */}
+              <button
+                type="button"
+                onClick={() => handleShare("instagram")}
+                className="group flex flex-col items-center gap-2"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 transition group-hover:scale-105 group-hover:bg-gray-200 sm:h-16 sm:w-16">
+                  <FaInstagram className="h-7 w-7 text-[#E4405F] sm:h-8 sm:w-8" />
+                </div>
+
+                <span className="text-xs font-medium sm:text-sm">
+                  Instagram
+                </span>
+              </button>
+
+              {/* FACEBOOK */}
+              <button
+                type="button"
+                onClick={() => handleShare("facebook")}
+                className="group flex flex-col items-center gap-2"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 transition group-hover:scale-105 group-hover:bg-gray-200 sm:h-16 sm:w-16">
+                  <FaFacebookF className="h-6 w-6 text-[#1877F2] sm:h-7 sm:w-7" />
+                </div>
+
+                <span className="text-xs font-medium sm:text-sm">Facebook</span>
+              </button>
+
+              {/* WHATSAPP */}
+              <button
+                type="button"
+                onClick={() => handleShare("whatsapp")}
+                className="group flex flex-col items-center gap-2"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 transition group-hover:scale-105 group-hover:bg-gray-200 sm:h-16 sm:w-16">
+                  <FaWhatsapp className="h-7 w-7 text-[#25D366] sm:h-8 sm:w-8" />
+                </div>
+
+                <span className="text-xs font-medium sm:text-sm">WhatsApp</span>
+              </button>
+
+              {/* TWITTER */}
+              <button
+                type="button"
+                onClick={() => handleShare("twitter")}
+                className="group flex flex-col items-center gap-2"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 transition group-hover:scale-105 group-hover:bg-gray-200 sm:h-16 sm:w-16">
+                  <FaTwitter className="h-7 w-7 text-[#1DA1F2] sm:h-8 sm:w-8" />
+                </div>
+
+                <span className="text-xs font-medium sm:text-sm">Twitter</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -24,6 +24,8 @@ const EditProfile = () => {
 
   const [loading, setLoading] = useState(false);
 
+  const [imagePreview, setImagePreview] = useState(user?.profilePicture || "");
+
   const [input, setInput] = useState({
     profilePhoto: null,
     bio: user?.bio || "",
@@ -33,17 +35,25 @@ const EditProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Handle profile image selection
   const fileChangeHandler = (e) => {
     const file = e.target.files?.[0];
 
-    if (file) {
-      setInput({
-        ...input,
-        profilePhoto: file,
-      });
+    if (!file) {
+      return;
     }
+
+    setInput({
+      ...input,
+      profilePhoto: file,
+    });
+
+    // Show selected image immediately
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
   };
 
+  // Handle gender selection
   const selectChangeHandler = (value) => {
     setInput({
       ...input,
@@ -51,6 +61,7 @@ const EditProfile = () => {
     });
   };
 
+  // Submit profile changes
   const editProfileHandler = async () => {
     try {
       setLoading(true);
@@ -99,29 +110,35 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-2xl pl-10">
-      <section className="my-8 flex w-full flex-col gap-6">
-        <h1 className="text-xl font-bold">Edit Profile</h1>
+    <div className="min-h-screen w-full px-4 py-6 sm:px-6 md:px-8 lg:px-10">
+      <section className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        {/* Heading */}
+        <h1 className="text-xl font-bold sm:text-2xl">Edit Profile</h1>
 
-        <div className="flex items-center justify-between rounded-xl bg-gray-100 p-4">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={user?.profilePicture} alt="Profile" />
+        {/* Profile information */}
+        <div className="flex flex-col gap-4 rounded-xl bg-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          {/* User information */}
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar className="h-14 w-14 shrink-0 sm:h-16 sm:w-16">
+              <AvatarImage src={imagePreview} alt="Profile" />
 
-              <AvatarFallback>
+              <AvatarFallback className="text-lg sm:text-xl">
                 {user?.username?.charAt(0)?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
 
-            <div>
-              <h1 className="text-sm font-bold">{user?.username}</h1>
+            <div className="min-w-0">
+              <h1 className="truncate text-sm font-bold sm:text-base">
+                {user?.username}
+              </h1>
 
-              <span className="text-gray-600">
+              <span className="block truncate text-sm text-gray-600">
                 {user?.bio || "Bio here..."}
               </span>
             </div>
           </div>
 
+          {/* Hidden file input */}
           <input
             ref={imageRef}
             onChange={fileChangeHandler}
@@ -130,16 +147,19 @@ const EditProfile = () => {
             className="hidden"
           />
 
+          {/* Change photo button */}
           <Button
+            type="button"
             onClick={() => imageRef.current?.click()}
-            className="h-8 bg-[#0095F6] hover:bg-[#318bc7]"
+            className="w-full shrink-0 bg-[#0095F6] hover:bg-[#318bc7] sm:w-auto"
           >
             Change photo
           </Button>
         </div>
 
+        {/* Bio */}
         <div>
-          <h1 className="mb-2 text-xl font-bold">Bio</h1>
+          <h1 className="mb-2 text-lg font-bold sm:text-xl">Bio</h1>
 
           <Textarea
             value={input.bio}
@@ -150,12 +170,14 @@ const EditProfile = () => {
               })
             }
             name="bio"
-            className="focus-visible:ring-transparent"
+            placeholder="Write something about yourself..."
+            className="min-h-28 resize-none focus-visible:ring-transparent"
           />
         </div>
 
+        {/* Gender */}
         <div>
-          <h1 className="mb-2 font-bold">Gender</h1>
+          <h1 className="mb-2 text-lg font-bold">Gender</h1>
 
           <Select value={input.gender} onValueChange={selectChangeHandler}>
             <SelectTrigger className="w-full">
@@ -171,11 +193,13 @@ const EditProfile = () => {
           </Select>
         </div>
 
+        {/* Submit */}
         <div className="flex justify-end">
           <Button
+            type="button"
             onClick={editProfileHandler}
             disabled={loading}
-            className="w-fit bg-[#0095F6] hover:bg-[#2a8ccd]"
+            className="w-full bg-[#0095F6] hover:bg-[#2a8ccd] sm:w-fit"
           >
             {loading ? (
               <>

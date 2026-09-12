@@ -160,7 +160,7 @@ const CreatePost = ({ open, setOpen }) => {
             </h2>
 
             <p className="truncate text-xs text-gray-500 sm:text-sm">
-              {user?.bio || "Share your thoughts..."}
+              {"Share your thoughts..."}
             </p>
           </div>
         </div>
