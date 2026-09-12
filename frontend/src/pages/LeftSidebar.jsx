@@ -6,6 +6,7 @@ import {
   PlusSquare,
   Search,
   TrendingUp,
+  User,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -109,7 +110,7 @@ const LeftSidebar = () => {
               <Avatar className="h-7 w-7">
                 <AvatarImage src={user?.profilePicture} alt="Profile" />
                 <AvatarFallback>
-                  {user?.username?.charAt(0)?.toUpperCase() || "A"}
+                  {user?.username?.charAt(0)?.toUpperCase() || <User />}
                 </AvatarFallback>
               </Avatar>
 
@@ -128,7 +129,7 @@ const LeftSidebar = () => {
           </button>
         </div>
       </aside>
-      ```jsx
+
       {/* ================= MOBILE TOP BAR ================= */}
       <div className="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white px-3 py-3 sm:px-4 lg:hidden">
         <div className="flex w-full items-center gap-2 sm:gap-3">

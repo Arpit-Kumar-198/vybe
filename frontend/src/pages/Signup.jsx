@@ -6,8 +6,6 @@ import { toast } from "sonner";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import Logo from "../components/Logo";
-import { useDispatch } from "react-redux";
-import { setAuthUser } from "../redux/authSlice";
 
 const Signup = () => {
   const [input, setInput] = useState({
