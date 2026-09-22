@@ -8,6 +8,7 @@ import connectDB from "./utils/db.js";
 import userRoute from "./routes/user.route.js";
 import postRoute from "./routes/post.route.js";
 import messageRoute from "./routes/message.route.js";
+import notificationRoute from "./routes/notification.route.js";
 
 import { initializeSocket } from "./socket/socket.js";
 
@@ -37,6 +38,7 @@ app.use(cookieParser());
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
+app.use("/api/v1/notification", notificationRoute);
 
 // ==================== SOCKET.IO ====================
 

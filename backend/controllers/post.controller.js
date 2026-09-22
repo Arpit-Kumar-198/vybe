@@ -4,7 +4,8 @@ import cloudinary from "../utils/cloudinary.js";
 import { Post } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
 import { Comment } from "../models/comment.model.js";
-import { getReceiverSocketId, io } from "../socket/socket.js";
+import { getReceiverSocketId, io, emitPostUpdate } from "../socket/socket.js";
+import { Notification } from "../models/notification.model.js";
 
 // ==================== CREATE POST ====================
 
@@ -174,22 +175,35 @@ export const likePost = async (req, res) => {
         },
       },
     );
+    const updatedPost = await Post.findById(postId).select("likes");
 
-    // Send real-time notification to post owner
-    if (post.author.toString() !== userId) {
+    emitPostUpdate("post:liked", {
+      postId,
+      likes: updatedPost.likes,
+    });
+
+    // Send notification to post owner
+    if (post.author.toString() !== userId.toString()) {
       const user = await User.findById(userId).select(
         "username profilePicture",
       );
 
+      // Save notification in MongoDB
+      const notification = await Notification.create({
+        sender: userId,
+        receiver: post.author,
+        type: "like",
+        post: postId,
+        message: `${user.username} liked your post`,
+      });
+
+      // Send real-time notification
       const postOwnerSocketId = getReceiverSocketId(post.author.toString());
 
       if (postOwnerSocketId && io) {
         io.to(postOwnerSocketId).emit("notification", {
-          type: "like",
-          userId,
+          ...notification.toObject(),
           userDetails: user,
-          postId,
-          message: "Your post was liked",
         });
       }
     }
@@ -233,24 +247,12 @@ export const dislikePost = async (req, res) => {
       },
     );
 
-    // Send real-time notification
-    if (post.author.toString() !== userId) {
-      const user = await User.findById(userId).select(
-        "username profilePicture",
-      );
+    const updatedPost = await Post.findById(postId).select("likes");
 
-      const postOwnerSocketId = getReceiverSocketId(post.author.toString());
-
-      if (postOwnerSocketId && io) {
-        io.to(postOwnerSocketId).emit("notification", {
-          type: "dislike",
-          userId,
-          userDetails: user,
-          postId,
-          message: "Your post was disliked",
-        });
-      }
-    }
+    emitPostUpdate("post:disliked", {
+      postId,
+      likes: updatedPost.likes,
+    });
 
     return res.status(200).json({
       message: "Post disliked",
@@ -290,6 +292,7 @@ export const addComment = async (req, res) => {
       });
     }
 
+    // Create comment
     const comment = await Comment.create({
       text: text.trim(),
       author: userId,
@@ -301,6 +304,7 @@ export const addComment = async (req, res) => {
       select: "username profilePicture",
     });
 
+    // Add comment to post
     await Post.updateOne(
       { _id: postId },
       {
@@ -309,6 +313,40 @@ export const addComment = async (req, res) => {
         },
       },
     );
+
+    // Broadcast comment update
+    emitPostUpdate("post:commented", {
+      postId,
+      comment,
+    });
+
+    // ================= COMMENT NOTIFICATION =================
+
+    // Don't notify users when they comment on their own post
+    if (post.author.toString() !== userId.toString()) {
+      const user = await User.findById(userId).select(
+        "username profilePicture",
+      );
+
+      // Save notification in MongoDB
+      const notification = await Notification.create({
+        sender: userId,
+        receiver: post.author,
+        type: comment.text,
+        post: postId,
+        message: `${user.username} commented on your post`,
+      });
+
+      // Send real-time notification
+      const postOwnerSocketId = getReceiverSocketId(post.author.toString());
+
+      if (postOwnerSocketId && io) {
+        io.to(postOwnerSocketId).emit("notification", {
+          ...notification.toObject(),
+          userDetails: user,
+        });
+      }
+    }
 
     return res.status(201).json({
       message: "Comment Added",
@@ -403,6 +441,16 @@ export const deletePost = async (req, res) => {
       post: postId,
     });
 
+    // Delete notifications related to this post
+    await Notification.deleteMany({
+      post: postId,
+    });
+
+    // Notify frontend that post was deleted
+    emitPostUpdate("post:deleted", {
+      postId,
+    });
+
     return res.status(200).json({
       success: true,
       message: "Post deleted",
@@ -477,6 +525,49 @@ export const bookmarkPost = async (req, res) => {
     });
   } catch (error) {
     console.error("Bookmark post error:", error.message);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};
+
+// ==================== GET SINGLE POST ====================
+
+export const getPostById = async (req, res) => {
+  try {
+    const postId = req.params.id;
+
+    const post = await Post.findById(postId)
+      .populate({
+        path: "author",
+        select: "username profilePicture bio",
+      })
+      .populate({
+        path: "comments",
+        options: {
+          sort: { createdAt: -1 },
+        },
+        populate: {
+          path: "author",
+          select: "username profilePicture",
+        },
+      });
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      post,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Get single post error:", error.message);
 
     return res.status(500).json({
       message: "Internal server error",

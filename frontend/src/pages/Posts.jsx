@@ -6,7 +6,7 @@ const Posts = () => {
   const { posts } = useSelector((store) => store.post);
 
   return (
-    <div className="w-full">
+    <div className="flex w-full flex-col gap-4">
       {posts?.length > 0 ? (
         posts.map((post) => <Post key={post._id} post={post} />)
       ) : (

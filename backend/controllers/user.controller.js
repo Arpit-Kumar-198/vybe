@@ -5,6 +5,8 @@ import { User } from "../models/user.model.js";
 import { Post } from "../models/post.model.js";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
+import { getReceiverSocketId, io, emitPostUpdate } from "../socket/socket.js";
+import { Notification } from "../models/notification.model.js";
 
 // ==================== REGISTER ====================
 
@@ -296,6 +298,7 @@ export const followOrUnfollow = async (req, res) => {
     const currentUserId = req.id;
     const targetUserId = req.params.id;
 
+    // Cannot follow yourself
     if (currentUserId === targetUserId) {
       return res.status(400).json({
         message: "You cannot follow/unfollow yourself",
@@ -313,9 +316,12 @@ export const followOrUnfollow = async (req, res) => {
       });
     }
 
+    // Check whether current user is already following target user
     const isFollowing = currentUser.following.some(
-      (id) => id.toString() === targetUserId,
+      (id) => id.toString() === targetUserId.toString(),
     );
+
+    // ==================== UNFOLLOW ====================
 
     if (isFollowing) {
       await Promise.all([
@@ -323,6 +329,7 @@ export const followOrUnfollow = async (req, res) => {
           { _id: currentUserId },
           { $pull: { following: targetUserId } },
         ),
+
         User.updateOne(
           { _id: targetUserId },
           { $pull: { followers: currentUserId } },
@@ -332,23 +339,54 @@ export const followOrUnfollow = async (req, res) => {
       return res.status(200).json({
         message: "Unfollowed successfully",
         success: true,
+        isFollowing: false,
       });
     }
+
+    // ==================== FOLLOW ====================
 
     await Promise.all([
       User.updateOne(
         { _id: currentUserId },
         { $addToSet: { following: targetUserId } },
       ),
+
       User.updateOne(
         { _id: targetUserId },
         { $addToSet: { followers: currentUserId } },
       ),
     ]);
 
+    // ================= FOLLOW NOTIFICATION =================
+
+    if (!isFollowing) {
+      // Get current user's details
+      const user = await User.findById(currentUserId).select(
+        "username profilePicture",
+      );
+
+      // Save notification in MongoDB
+      const notification = await Notification.create({
+        sender: currentUserId,
+        receiver: targetUserId,
+        type: "follow",
+        message: `${user.username} started following you`,
+      });
+
+      // Send real-time notification
+      const targetUserSocketId = getReceiverSocketId(targetUserId.toString());
+
+      if (targetUserSocketId && io) {
+        io.to(targetUserSocketId).emit("notification", {
+          ...notification.toObject(),
+          userDetails: user,
+        });
+      }
+    }
     return res.status(200).json({
       message: "Followed successfully",
       success: true,
+      isFollowing: true,
     });
   } catch (error) {
     console.error("Follow/unfollow error:", error.message);

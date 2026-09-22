@@ -11,6 +11,13 @@ export const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
+// Broadcast post updates to all connected users
+export const emitPostUpdate = (event, data) => {
+  if (io) {
+    io.emit(event, data);
+  }
+};
+
 // Initialize Socket.IO
 export const initializeSocket = (app) => {
   server = http.createServer(app);
