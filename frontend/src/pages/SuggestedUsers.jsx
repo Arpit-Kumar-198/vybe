@@ -2,10 +2,13 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setSuggestedUsers } from "../redux/authSlice";
 
 const SuggestedUsers = () => {
-  const suggestedUsers = useSelector((state) => state.auth.selectedUser);
+  const dispatch = useDispatch();
+
+  const suggestedUsers = useSelector((state) => state.auth.suggestedUsers);
 
   const followHandler = async (userId) => {
     try {
@@ -21,6 +24,9 @@ const SuggestedUsers = () => {
         const updatedUsers = suggestedUsers.filter(
           (suggestedUser) => suggestedUser._id !== userId,
         );
+
+        dispatch(setSuggestedUsers(updatedUsers));
+
         toast.success(res.data.message);
       }
     } catch (error) {

@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import SuggestedUsers from "./SuggestedUsers";
 import { useSelector } from "react-redux";
+import useGetSuggestedUsers from "../hooks/useGetSuggestedUsers";
 
 const RightSidebar = () => {
   const user = useSelector((state) => state.auth.user);
+  useGetSuggestedUsers();
 
   return (
     <aside className="w-full px-6 py-8">
