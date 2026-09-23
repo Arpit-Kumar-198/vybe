@@ -13,7 +13,7 @@ import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import SinglePost from "./components/SinglePost";
 import { setAuthUser, setCheckingAuth, logout } from "./redux/authSlice";
-
+import Search from "./pages/Search";
 import socket from "@/socket/socket";
 import {
   updatePostLikes,
@@ -44,6 +44,10 @@ const browserRouter = createBrowserRouter([
           {
             path: "profile/:id",
             element: <Profile />,
+          },
+          {
+            path: "search",
+            element: <Search />,
           },
           {
             path: "/profile/edit",

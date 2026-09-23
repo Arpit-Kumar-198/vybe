@@ -8,6 +8,7 @@ import {
   getProfile,
   editProfile,
   getSuggestedUsers,
+  searchUsers,
   followOrUnfollow,
 } from "../controllers/user.controller.js";
 
@@ -30,6 +31,8 @@ router.get("/me", isAuthenticated, getCurrentUser);
 
 // Get user profile
 router.get("/:id/profile", isAuthenticated, getProfile);
+
+router.get("/search", isAuthenticated, searchUsers);
 
 // Edit profile
 router.post(

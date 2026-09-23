@@ -9,7 +9,7 @@ import {
   User,
 } from "lucide-react";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 
 import Logo from "../components/Logo";
@@ -42,6 +42,7 @@ const LeftSidebar = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const sidebarItems = [
     {
@@ -239,33 +240,31 @@ const LeftSidebar = () => {
       </aside>
 
       {/* ================= MOBILE TOP BAR ================= */}
+      {location.pathname !== "/search" && (
+        <div className="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white px-3 py-3 sm:px-4 lg:hidden">
+          <div className="flex w-full items-center justify-between gap-2 sm:gap-3">
+            {/* Search Users */}
+            <button
+              type="button"
+              onClick={() => navigate("/search")}
+              className="flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium transition hover:bg-gray-100 sm:h-11"
+            >
+              <Search className="h-5 w-5" />
+              <span>Search Users</span>
+            </button>
 
-      <div className="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white px-3 py-3 sm:px-4 lg:hidden">
-        <div className="flex w-full items-center gap-2 sm:gap-3">
-          {/* Search */}
-
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-
-            <input
-              type="text"
-              placeholder="Search username..."
-              className="h-10 w-full rounded-lg bg-gray-100 pl-10 pr-3 text-sm outline-none focus:ring-1 focus:ring-gray-300 sm:h-11"
-            />
+            {/* Logout */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition hover:bg-gray-100 sm:h-11 sm:w-11"
+              aria-label="Logout"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
           </div>
-
-          {/* Mobile Logout */}
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition hover:bg-gray-100 sm:h-11 sm:w-11"
-            aria-label="Logout"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
         </div>
-      </div>
+      )}
 
       {/* ================= MOBILE BOTTOM NAVIGATION ================= */}
 

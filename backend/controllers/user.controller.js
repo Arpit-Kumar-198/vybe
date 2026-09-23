@@ -291,6 +291,42 @@ export const getSuggestedUsers = async (req, res) => {
   }
 };
 
+// ==================== SEARCH USERS ====================
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query?.trim()) {
+      return res.status(200).json({
+        success: true,
+        users: [],
+      });
+    }
+
+    const users = await User.find({
+      username: {
+        $regex: query.trim(),
+        $options: "i",
+      },
+    })
+      .select("username profilePicture bio")
+      .limit(10);
+
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.error("Search users error:", error.message);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};
+
 // ==================== FOLLOW / UNFOLLOW ====================
 
 export const followOrUnfollow = async (req, res) => {
