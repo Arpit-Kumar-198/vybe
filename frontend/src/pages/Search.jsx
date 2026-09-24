@@ -61,7 +61,7 @@ const Search = () => {
 
                 {user.bio && (
                   <p className="truncate text-xs text-gray-500 sm:text-sm">
-                    {user.bio}
+                    {`@${user.username}`}
                   </p>
                 )}
               </div>

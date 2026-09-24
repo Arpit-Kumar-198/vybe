@@ -4,12 +4,21 @@ import LeftSidebar from "./LeftSidebar";
 
 const MainLayout = () => {
   return (
-    <div className="flex min-h-screen">
-      {/* Left Sidebar */}
+    <div className="min-h-screen bg-white">
       <LeftSidebar />
 
-      {/* Page Content */}
-      <main className="flex-1 lg:ml-64">
+      <main
+        className="
+          min-h-screen
+          w-full
+          pt-14
+          pb-16
+          lg:ml-64
+          lg:w-auto
+          lg:pt-0
+          lg:pb-0
+        "
+      >
         <Outlet />
       </main>
     </div>

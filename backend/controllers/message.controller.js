@@ -101,3 +101,35 @@ export const getMessage = async (req, res) => {
     });
   }
 };
+
+// ==================== GET CHAT USERS ====================
+
+export const getChatUsers = async (req, res) => {
+  try {
+    const userId = req.id;
+
+    const conversations = await Conversation.find({
+      participants: userId,
+    }).populate("participants", "username profilePicture bio");
+
+    const chatUsers = conversations
+      .map((conversation) =>
+        conversation.participants.find(
+          (participant) => participant._id.toString() !== userId.toString(),
+        ),
+      )
+      .filter(Boolean);
+
+    return res.status(200).json({
+      success: true,
+      users: chatUsers,
+    });
+  } catch (error) {
+    console.error("Get chat users error:", error.message);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};

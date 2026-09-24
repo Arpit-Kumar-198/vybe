@@ -18,6 +18,13 @@ export const emitPostUpdate = (event, data) => {
   }
 };
 
+// Broadcast current online users
+const emitOnlineUsers = () => {
+  if (io) {
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  }
+};
+
 // Initialize Socket.IO
 export const initializeSocket = (app) => {
   server = http.createServer(app);
@@ -33,22 +40,22 @@ export const initializeSocket = (app) => {
   io.on("connection", (socket) => {
     const userId = socket.handshake.query.userId;
 
-    // Store user's socket ID
     if (userId) {
       userSocketMap[userId] = socket.id;
+
+      console.log(`User connected: ${userId} | Socket: ${socket.id}`);
+
+      emitOnlineUsers();
     }
 
-    // Send current online users to everyone
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
-    // User disconnected
     socket.on("disconnect", () => {
-      if (userId) {
+      if (userId && userSocketMap[userId] === socket.id) {
         delete userSocketMap[userId];
-      }
 
-      // Send updated online users
-      io.emit("getOnlineUsers", Object.keys(userSocketMap));
+        console.log(`User disconnected: ${userId} | Socket: ${socket.id}`);
+
+        emitOnlineUsers();
+      }
     });
   });
 

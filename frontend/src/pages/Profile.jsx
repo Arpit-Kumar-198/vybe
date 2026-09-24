@@ -127,6 +127,12 @@ const Profile = () => {
     });
   };
 
+  // ==================== OPEN CHAT ====================
+
+  const handleMessageClick = () => {
+    navigate(`/chat/${userProfile._id}`);
+  };
+
   // ==================== SHARE PROFILE ====================
 
   const handleShare = (platform) => {
@@ -241,6 +247,7 @@ const Profile = () => {
                   <Button
                     variant="secondary"
                     className="h-9 flex-1 px-2 text-xs"
+                    onClick={handleMessageClick}
                   >
                     Message
                   </Button>
@@ -346,7 +353,11 @@ const Profile = () => {
                             : "Follow"}
                       </Button>
 
-                      <Button variant="secondary" className="h-9">
+                      <Button
+                        variant="secondary"
+                        className="h-9"
+                        onClick={handleMessageClick}
+                      >
                         Message
                       </Button>
 

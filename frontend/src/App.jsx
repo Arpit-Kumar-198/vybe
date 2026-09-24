@@ -21,6 +21,10 @@ import {
   removePost,
 } from "./redux/postSlice";
 
+import { setOnlineUsers } from "./redux/chatSlice";
+import ChatPage from "./pages/ChatPage";
+import ChatConversation from "./pages/ChatConversation";
+
 const browserRouter = createBrowserRouter([
   {
     path: "/login",
@@ -56,6 +60,14 @@ const browserRouter = createBrowserRouter([
           {
             path: "post/:postId",
             element: <SinglePost />,
+          },
+          {
+            path: "/chat",
+            element: <ChatPage />,
+          },
+          {
+            path: "/chat/:userId",
+            element: <ChatConversation />,
           },
         ],
       },
@@ -103,6 +115,13 @@ function App() {
   useEffect(() => {
     if (!user?._id) return;
 
+    const handleOnlineUsers = (users) => {
+      dispatch(setOnlineUsers(users));
+    };
+
+    // Listen before connecting
+    socket.on("getOnlineUsers", handleOnlineUsers);
+
     socket.io.opts.query = {
       userId: user._id,
     };
@@ -112,10 +131,12 @@ function App() {
     console.log("Socket connected for user:", user._id);
 
     return () => {
+      socket.off("getOnlineUsers", handleOnlineUsers);
       socket.disconnect();
+
       console.log("Socket disconnected");
     };
-  }, [user?._id]);
+  }, [user?._id, dispatch]);
 
   // Listen for real-time post updates
   useEffect(() => {

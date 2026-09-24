@@ -29,12 +29,10 @@ import {
 
 import { useEffect, useState } from "react";
 
-// ⚠️ Change this import path according to your project
 import socket from "../socket/socket";
 
 const LeftSidebar = () => {
   const { user } = useSelector((store) => store.auth);
-
   const { unreadCount } = useSelector((store) => store.notification);
 
   const [openCreatePost, setOpenCreatePost] = useState(false);
@@ -137,18 +135,18 @@ const LeftSidebar = () => {
         onClick={() => setOpenNotifications(true)}
         className={
           mobile
-            ? "relative flex flex-1 flex-col items-center justify-center gap-1 p-2 text-gray-700 transition hover:text-black"
+            ? "relative flex h-full flex-1 flex-col items-center justify-center gap-0.5 px-1 text-gray-700 transition hover:text-black"
             : "my-1 flex w-full items-center gap-4 rounded-lg px-3 py-3 text-left transition hover:bg-gray-100"
         }
       >
         <div className="relative shrink-0">
-          <Heart className={mobile ? "h-5 w-5 sm:h-6 sm:w-6" : "h-6 w-6"} />
+          <Heart className={mobile ? "h-5 w-5" : "h-6 w-6"} />
 
           {unreadCount > 0 && (
             <span
               className={
                 mobile
-                  ? "absolute -right-3 -top-3 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white"
+                  ? "absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white"
                   : "absolute -right-3 -top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white"
               }
             >
@@ -157,7 +155,7 @@ const LeftSidebar = () => {
           )}
         </div>
 
-        <span className={mobile ? "text-[10px] sm:text-xs" : "font-medium"}>
+        <span className={mobile ? "text-[10px] leading-none" : "font-medium"}>
           Notifications
         </span>
       </button>
@@ -166,7 +164,9 @@ const LeftSidebar = () => {
 
   return (
     <>
-      {/* ================= DESKTOP SIDEBAR ================= */}
+      {/* ================================================= */}
+      {/* DESKTOP SIDEBAR */}
+      {/* ================================================= */}
 
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-gray-200 bg-white lg:block">
         <div className="flex h-full flex-col px-4">
@@ -225,7 +225,7 @@ const LeftSidebar = () => {
             </Link>
           </nav>
 
-          {/* Desktop Logout */}
+          {/* Logout */}
 
           <button
             type="button"
@@ -239,56 +239,64 @@ const LeftSidebar = () => {
         </div>
       </aside>
 
-      {/* ================= MOBILE TOP BAR ================= */}
+      {/* ================================================= */}
+      {/* MOBILE TOP BAR */}
+      {/* ================================================= */}
+
       {location.pathname !== "/search" && (
-        <div className="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white px-3 py-3 sm:px-4 lg:hidden">
-          <div className="flex w-full items-center justify-between gap-2 sm:gap-3">
-            {/* Search Users */}
+        <header className="fixed inset-x-0 top-0 z-50 h-14 border-b border-gray-200 bg-white lg:hidden">
+          <div className="flex h-full w-full items-center justify-between px-3">
+            {/* Search */}
+
             <button
               type="button"
               onClick={() => navigate("/search")}
-              className="flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium transition hover:bg-gray-100 sm:h-11"
+              className="flex h-9 items-center gap-2 rounded-lg px-2 text-sm font-medium transition hover:bg-gray-100 active:bg-gray-100"
             >
               <Search className="h-5 w-5" />
+
               <span>Search Users</span>
             </button>
 
             {/* Logout */}
+
             <button
               type="button"
               onClick={handleLogout}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition hover:bg-gray-100 sm:h-11 sm:w-11"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition hover:bg-gray-100 active:bg-gray-100"
               aria-label="Logout"
             >
               <LogOut className="h-5 w-5" />
             </button>
           </div>
-        </div>
+        </header>
       )}
 
-      {/* ================= MOBILE BOTTOM NAVIGATION ================= */}
+      {/* ================================================= */}
+      {/* MOBILE BOTTOM NAVIGATION */}
+      {/* ================================================= */}
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex w-full items-center border-t border-gray-200 bg-white px-1 py-1.5 sm:px-2 sm:py-2 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 flex h-16 w-full items-center border-t border-gray-200 bg-white px-1 lg:hidden">
         {/* Home */}
 
         <Link
           to="/"
-          className="flex flex-1 flex-col items-center justify-center gap-1 p-2 text-gray-700 transition hover:text-black"
+          className="flex h-full flex-1 flex-col items-center justify-center gap-0.5 px-1 text-gray-700 transition hover:text-black"
         >
-          <Home className="h-5 w-5 sm:h-6 sm:w-6" />
+          <Home className="h-5 w-5" />
 
-          <span className="text-[10px] sm:text-xs">Home</span>
+          <span className="text-[10px] leading-none">Home</span>
         </Link>
 
         {/* Messages */}
 
         <Link
           to="/chat"
-          className="flex flex-1 flex-col items-center justify-center gap-1 p-2 text-gray-700 transition hover:text-black"
+          className="flex h-full flex-1 flex-col items-center justify-center gap-0.5 px-1 text-gray-700 transition hover:text-black"
         >
-          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+          <MessageCircle className="h-5 w-5" />
 
-          <span className="text-[10px] sm:text-xs">Messages</span>
+          <span className="text-[10px] leading-none">Messages</span>
         </Link>
 
         {/* Create */}
@@ -296,11 +304,11 @@ const LeftSidebar = () => {
         <button
           type="button"
           onClick={() => setOpenCreatePost(true)}
-          className="flex flex-1 flex-col items-center justify-center gap-1 p-2 text-gray-700 transition hover:text-black"
+          className="flex h-full flex-1 flex-col items-center justify-center gap-0.5 px-1 text-gray-700 transition hover:text-black"
         >
-          <PlusSquare className="h-5 w-5 sm:h-6 sm:w-6" />
+          <PlusSquare className="h-5 w-5" />
 
-          <span className="text-[10px] sm:text-xs">Create</span>
+          <span className="text-[10px] leading-none">Create</span>
         </button>
 
         {/* Notifications */}
@@ -311,9 +319,9 @@ const LeftSidebar = () => {
 
         <Link
           to={`/profile/${user?._id}`}
-          className="flex flex-1 flex-col items-center justify-center gap-1 p-2 text-gray-700 transition hover:text-black"
+          className="flex h-full flex-1 flex-col items-center justify-center gap-0.5 px-1 text-gray-700 transition hover:text-black"
         >
-          <Avatar className="h-6 w-6 sm:h-7 sm:w-7">
+          <Avatar className="h-5 w-5">
             <AvatarImage src={user?.profilePicture} alt="Profile" />
 
             <AvatarFallback>
@@ -321,11 +329,13 @@ const LeftSidebar = () => {
             </AvatarFallback>
           </Avatar>
 
-          <span className="text-[10px] sm:text-xs">Profile</span>
+          <span className="text-[10px] leading-none">Profile</span>
         </Link>
       </nav>
 
-      {/* ================= MODALS ================= */}
+      {/* ================================================= */}
+      {/* MODALS */}
+      {/* ================================================= */}
 
       <CreatePost open={openCreatePost} setOpen={setOpenCreatePost} />
 
